@@ -1,53 +1,55 @@
 import React, { Component } from 'react';
-import { Button, Jumbotron } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router-dom'
-import * as actionCreators from '../../../store/actions/index'
-import * as actionType from '../../../store/actions/actionTypes'
+import ArticleContent from '../../../components/UI/ArticleContent'
+import * as detailActionCreators from '../../../store/actions/detail'
+import * as editActionCreators from '../../../store/actions/edit'
+
 
 class ArticleDetail extends Component {
-
 
 	onDeleteClicked = () => {
 		this.props.deleteArticle();
 	}
-
 	onEditClicked = () => {
+		this.props.articleUpdateReset()
 		this.props.history.push("/articles/" + this.props.match.params.id + "/edit");
 	}
 	componentDidMount() {
-		this.props.getDetailArticle(this.props.match.params.id);
+		if (!this.props.article) {
+			this.props.downloadArticle(this.props.match.params.id);
+		}
 	}
-	componentWillUnmount() {
-		this.props.invalidateArticle();
+
+	renderBody() {
+
+		if (this.props.isDeleted) {
+			return <Redirect to="/articles" />
+		} 
+		if (!this.props.article) {
+			return <p>Loading...</p>
+		}
+		if (this.props.error) {
+			return <p>Something went wrong</p>
+		}
+		if (this.props.deleting) {
+			return <p>Deleting</p>
+		}
+
+		return (
+			<ArticleContent article={this.props.article} >
+				<span>
+					<button className="ui red button" onClick={this.onDeleteClicked}>Delete</button>
+					<button className="ui primary button"onClick={this.onEditClicked}>Edit</button>
+				</span>
+			</ArticleContent>
+		)
 	}
 	render() {
-		let displayUI = <p>Loading...</p>;
-		if (this.props.article) {
-			displayUI = (
-				<Jumbotron>
-					<h3> {this.props.article.title}</h3>
-					<p>
-						{this.props.article.content}
-					</p>
-					<span>
-						<Button bsStyle="danger" onClick={this.onDeleteClicked}>Delete</Button>
-						<Button bsStyle="warning" onClick={this.onEditClicked}>Edit</Button>
-					</span>
-				</Jumbotron>
-			)
-		}
-		if (this.props.deleted) {
-			displayUI = <Redirect to="/articles" />
-		}
-		if( this.props.error) {
-			displayUI = <p>Something went wrong</p>
-
-		}
 		return (
-			<div>
-				<h1>Article Detail Page</h1>
-				{displayUI}
+			<div className="ui raised very padded text container segment">
+				<h1 className="ui header">Article Detail Page</h1>
+				{this.renderBody()}
 			</div>
 		)
 	}
@@ -56,15 +58,17 @@ class ArticleDetail extends Component {
 const mapStateToProps = state => {
 	return {
 		article: state.detail.article,
-		deleted: state.detail.deleted,
+		deleting: state.detail.deleting,
+		isDeleted: state.detail.isDeleted,
 		error: state.detail.error
 	}
 }
 const mapDispatchToProps = dispatch => {
 	return {
-		getDetailArticle: id => dispatch(actionCreators.getDetailArticle(id)),
-		invalidateArticle: () => dispatch({ type: actionType.DETAIL_UNMOUNT }),
-		deleteArticle: () => dispatch(actionCreators.deleteArticle())
+		downloadArticle: id => dispatch(detailActionCreators.downloadArticle(id)),
+		// invalidateArticle: () => dispatch({ type: actionType.DETAIL_UNMOUNT }),
+		deleteArticle: () => dispatch(detailActionCreators.deleteArticle()),
+		articleUpdateReset: () => dispatch(editActionCreators.articleUpdateReset())
 	}
 }
 export default connect(mapStateToProps, mapDispatchToProps)(ArticleDetail);

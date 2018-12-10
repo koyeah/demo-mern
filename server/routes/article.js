@@ -3,73 +3,66 @@ const router = express.Router();
 const Article = require('../models/article');
 
 //articles index
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
 	console.log('------INDEX------');
-	Article.find({})
-		.then(articles => {
-			console.log('SUCCESS', articles);
-			res.json(articles);
-		})
-		.catch(error => {
-			console.log('FAIL', error);
-			return res.json({ error: error });
-		})
+	try {
+		const articles = await Article.find({})
+		console.log('SUCCESS', articles);
+		res.json(articles);
+	} catch (error) {
+		console.log('FAIL', error);
+		return res.json({ error: error });
+	}
 });
 
 //articles create
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
 	console.log('------CREATE------');
-	Article.create({ ...req.body.article })
-		.then(article => {
-			console.log('[articles create]', article);
-			res.json(article);
-		})
-		.catch(err => {
-			console.log('[articles create]', err);
-			return res.json({ error: err });
-		})
+	try {
+		const article = await Article.create({ ...req.body.article })
+		console.log('[articles create]', article);
+		res.json(article);
+	} catch (error) {
+		console.log('[articles create]', error);
+		return res.json({ error: error });
+	}
 });
 
 //articles show
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
 	console.log('------SHOW------');
-	Article.findById(req.params.id)
-		.then(article => {
-			console.log('[articles show]', article);
-			res.json(article);
-		})
-		.catch(err => {
-			console.log('[articles show]', err);
-			return res.json({ error: err });
-		})
+	try {
+		const article = await Article.findById(req.params.id)
+		console.log('[articles show]', article);
+		res.json(article);
+	} catch (error) {
+		console.log('[articles show]', error);
+		return res.json({ error: error });
+	}
 });
 
 //articles update
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
 	console.log('------UPDATE------');
-	Article.findByIdAndUpdate(req.params.id, req.body.article)
-		.then(article => {
-			console.log('[articles update]', 'success', article);
-			res.json(article);
-		})
-		.catch(err => {
-			console.log('[articles update]', 'ERR', err);
-			return res.json({ error: err });
-		})
+	try {
+		const article =
+			await Article.findByIdAndUpdate(req.params.id, req.body.article)
+		res.json(article);
+	} catch (error) {
+		return res.json({ error: error });
+	}
 });
 
 //articles delete
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
 	console.log('------DELETE------');
-	Article.findByIdAndRemove(req.params.id)
-		.then(() => {
-			console.log('[articles delete]', err);
-			return res.json({ error: err });
-		})
-		.catch(err => {
-			console.log('[articles delete]', err);
-			return res.json({ error: err });
-		})
+	try {
+		await Article.findByIdAndRemove(req.params.id)
+		return res.json({});
+	} catch (error) {
+		console.log('[articles delete]', error);
+		return res.json({ error: error });
+	}
 });
 
 module.exports = router;

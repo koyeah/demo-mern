@@ -1,56 +1,37 @@
+
 import * as actionTypes from './actionTypes'
 import axios from 'axios'
 
-
-
-
-const saveEditArticle = (article) => {
-    return {
-        type: actionTypes.EDIT_DOWNLOADED,
-        article: article
-    }
+export const updateArticle = article => {
+	return async (dispatch, getState) => {
+		dispatch(articleUpdateStart());
+		try {
+			await axios.put("/articles/" + getState().detail.article._id, {article})
+			dispatch({ type: actionTypes.LIST_RESET })
+			dispatch({ type: actionTypes.ARTICLE_RESET })
+			dispatch(articleUpdateOK());
+		} catch (error) {
+			dispatch(articleUpdateFail(error))
+		}
+	}			
 }
-const serverFail = err => {
-    return {
-        type: actionTypes.EDIT_ERROR,
-        error: err
-    }
+export const articleUpdateReset = () => {
+	return {
+		type:actionTypes.ARTICLE_UPDATE_RESET
+	}
 }
-export const getEditArticle = id => {
-    return dispatch => {
-        axios.get("/articles/" + id)
-            .then(response => {
-                const article = response.data
-                console.log('[getArticle]', "[GET]", "OK", article);
-                dispatch(saveEditArticle(article))
-            })
-            .catch(err => {
-                dispatch(serverFail(err))
-                console.log('[getArticle]', "[GET]", "ERR", err);
-            })
-    }
+const articleUpdateStart = () => {
+	return { type: actionTypes.ARTICLE_UPDATE_START }
 }
-
-const articleUpdated = () => {
-    return {
-        type: actionTypes.EDIT_UPDATED
-
-    }
+const articleUpdateOK = () => {
+	return {
+		type: actionTypes.ARTICLE_UPDATE_OK
+	}
 }
-
-export const updateArticle = (article) => {
-    return (dispatch, getState) => {
-
-        axios.put("/articles/" + getState().edit.article._id, { article: getState().edit.article })
-            .then(response => {
-                dispatch(articleUpdated());
-            })
-            .catch(err => {
-                dispatch(serverFail(err))
-
-                console.log('[deleteArticle]', "[DELETE]", "ERR", err);
-            })
-    }
+const articleUpdateFail = (error) => {
+	return {
+		type: actionTypes.ARTICLE_UPDATE_FAIL,
+		error: error
+	}
 }
-
 
