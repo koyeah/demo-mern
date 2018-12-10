@@ -27,7 +27,7 @@ const ArticleContent = (props) => {
 
 	// show Text
 	return (
-		<div className='ui container text'>
+		<div className='ui container segment'>
 			<h3>{title}</h3>
 			<p>{content}</p>
 			{props.children}

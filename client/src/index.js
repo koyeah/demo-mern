@@ -15,8 +15,8 @@ import * as serviceWorker from './serviceWorker';
 import axios from 'axios';
 const BrowserRouter = require('react-router-dom').BrowserRouter
 
-// axios.defaults.baseURL = 'http://demoapi.tmn2njb5pr.ap-southeast-1.elasticbeanstalk.com/api'; 
-axios.defaults.baseURL = 'http://localhost:1234/api'; 
+axios.defaults.baseURL = 'http://demoapi.tmn2njb5pr.ap-southeast-1.elasticbeanstalk.com/api'; 
+
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 
 
