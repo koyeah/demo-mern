@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const Article = require('../models/article');
+const checkToken = require('../middlewares/utils')
 
+
+
+router.use(checkToken)
 //articles index
 router.get('/', async (req, res) => {
 	console.log('------INDEX------');
