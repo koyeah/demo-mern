@@ -1,7 +1,5 @@
 import React, { Component } from 'react'
-
-import axios from 'axios';
-import * as actionCreators from '../../../store/actions/list'
+import * as actionCreators from '../../../store/actions/'
 
 import { connect } from 'react-redux'
 
@@ -29,16 +27,28 @@ class ArticleNew extends Component {
 		this.setState({ article: newArticle })
 	}
 
-	onCreateClicked = async () => {
-		try {
-			const response = await axios.post("/articles", { article: this.state.article })
-			if (response) {
+	onCreateClicked = () => {
+		this.props.createArticle(this.state.article)
+	}
+	componentDidUpdate(prevProp) {
+		if (prevProp.creating) {
+			if (!this.state.error) {
 				this.props.history.push("/articles");
-				this.props.resetList()
 			}
-		} catch (error) {
-			console.log("[axios.post]", error);
 		}
+	}
+	renderContent() {
+		if (this.props.creating) { return <p>Creating</p> }
+		if (this.props.error) { return <p>Error</p> }
+		return (
+			<ArticleContent
+				edit
+				article={this.state.article}
+				titleHandler={this.onTitleChanged}
+				contentHandler={this.onContentChanged}>
+				<button className="ui primary button" onClick={this.onCreateClicked}>Create</button>
+			</ArticleContent>
+		)
 	}
 	render() {
 		return (
@@ -46,21 +56,21 @@ class ArticleNew extends Component {
 				<div className="ui header">
 					<h1>Create An Article</h1>
 				</div>
-				<ArticleContent
-					edit
-					article={this.state.article}
-					titleHandler={this.onTitleChanged}
-					contentHandler={this.onContentChanged}>
-					<button className="ui primary button" onClick={this.onCreateClicked}>Create</button>
-				</ArticleContent>
+				{this.renderContent()}
 			</div>
 		)
 	}
 }
-const mapDispatchToProps = dispatch => {
+const mapStateToProps = state => {
 	return {
-		resetList: dispatch(actionCreators.resetList())
+		creating: state.newReducer.creating,
+		error: state.newReducer.error
 	}
 }
-export default connect(null, mapDispatchToProps)(ArticleNew);
+const mapDispatchToProps = dispatch => {
+	return {
+		createArticle: (article) => dispatch(actionCreators.createArticle(article))
+	}
+}
+export default connect(mapStateToProps, mapDispatchToProps)(ArticleNew);
 

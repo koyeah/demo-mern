@@ -1,9 +1,8 @@
 
 import * as actionTypes from '../actions/actionTypes'
 
-
 const initialState = {
-	list: null,
+	articleList: null,
 	error: null,
 }
 
@@ -22,22 +21,22 @@ const downloadStart = (state, action) => {
 	}
 }
 const downloadOK = (state, action) => {
-	const list = action.list.concat();
+	const articleList = action.articleList.concat();
 	return {
 		...state,
-		list: list,
+		articleList
 	}
 }
 const downloadFail = (state, action) => {
 	return {
 		...state,
-		error: action.error,
+		error: action.error
 	}
 }
 const resetList = (state, action) => {
 	return {
 		...state,
-		list: null,
+		articleList: null,
 		error: null
 	}
 }

@@ -1,30 +1,25 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import * as listActionCreators from '../../../store/actions/list'
-import * as detailActionCreators from '../../../store/actions/detail'
-
+import * as actionCreators from '../../../store/actions'
 
 class ArticleList extends Component {
 	onArticleClicked = id => {
-		if (this.props.selectedArticle &&
-			this.props.selectedArticle._id !== id) {
-			this.props.resetArticle();
-		}
+		this.props.selectArticle(id)
 		this.props.history.push("/articles/" + id);
 	}
 	componentDidMount() {
-		if (!this.props.articles) {
+		if (!this.props.articleList) {
 			this.props.downloadArticleList()
 		}
 	}
 	renderBody() {
-		if (!this.props.articles) {
+		if (!this.props.articleList) {
 			return <p>Loading</p>
 		}
 		if (this.props.error) {
 			return <p>Something went wrong...</p>
 		}
-		const articles = this.props.articles.map((a, idx) => {
+		const articles = this.props.articleList.map((a, idx) => {
 			return (
 				<tr key={a._id} onClick={() => this.onArticleClicked(a._id)}>
 					<td >{idx + 1}</td>
@@ -59,15 +54,14 @@ class ArticleList extends Component {
 
 const mapStateToProps = state => {
 	return {
-		articles: state.list.list,
-		selectedArticle: state.detail.article,
-		error: state.list.error
+		articleList: state.listReducer.articleList,
+		error: state.listReducer.error
 	};
 }
 const mapDispatchToProps = dispatch => {
 	return {
-		downloadArticleList: () => dispatch(listActionCreators.downloadArticleList()),
-		resetArticle: () => dispatch(detailActionCreators.resetArticle())
+		downloadArticleList: () => dispatch(actionCreators.downloadArticleList()),
+		selectArticle: (id) => dispatch(actionCreators.selectArticle(id))
 	};
 }
 

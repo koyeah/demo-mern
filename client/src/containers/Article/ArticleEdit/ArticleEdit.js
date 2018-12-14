@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { Redirect } from 'react-router-dom'
 
 import ArticleContent from '../../../components/UI/ArticleContent'
 
-import * as editActionCreators from '../../../store/actions/edit'
-import * as detailActionCreators from '../../../store/actions/detail'
+import * as actionCreators from '../../../store/actions'
+
 
 
 import { connect } from 'react-redux'
@@ -39,24 +38,36 @@ class ArticleEdit extends Component {
 		event.preventDefault();
 		this.props.updateArticle(this.state.localArticle);
 	}
+	copyToLocalArticle= () => {
+		const copyArticle = {
+			title: this.props.articleSelected.title,
+			content: this.props.articleSelected.content
+		}
+		this.setState({
+			...this.state,
+			localArticle: copyArticle
+		})
+	}
 	componentDidMount() {
-		if (!this.props.article) {
-			this.props.downloadArticle(this.props.match.params.id)
+		if (!this.props.articleSelected) {
+			return this.props.downloadArticle(this.props.match.params.id)
 		} else {
-			const copyArticle = {
-				title: this.props.article.title,
-				content: this.props.article.content
-			}
-			this.setState({
-				...this.state,
-				localArticle: copyArticle
-			})
+			this.copyToLocalArticle();
 		}
 	}
-	
+	componentDidUpdate(prevProp) {
+		if ( prevProp.updating && !this.props.updating && 
+			!this.props.articleSelected) {
+			//updating OK, redirect to top page!
+			return this.props.history.push('/articles')
+		} 
+		if (!prevProp.articleSelected && this.props.articleSelected) {
+			this.copyToLocalArticle();
+		}
+	}
 	renderBody() {
 		let articleUI = null;
-		if (!this.props.article) {
+		if (!this.props.articleSelected) {
 			articleUI=  <p>Loading...</p>
 		}
 		if (this.props.error) {
@@ -76,12 +87,10 @@ class ArticleEdit extends Component {
 		if (this.props.updating) {
 			updateInfoUI = <p>Updating...</p>
 		}
-		if (this.props.updateError) {
-			updateInfoUI = <p> Update failed!</p>
-		}
-		if (this.props.isUpdated) {
-			updateInfoUI = <Redirect to="/articles" ></Redirect>
-		}
+		
+		// if (this.props.isUpdated) {
+		// 	updateInfoUI = <Redirect to="/articles" ></Redirect>
+		// }
 		return (
 			<>
 				{articleUI}
@@ -100,19 +109,15 @@ class ArticleEdit extends Component {
 }
 const mapStateToProps = state => {
 	return {
-		article: state.detail.article,
-		updating: state.edit.updating,
-		isUpdated: state.edit.isUpdated,
-		error: state.detail.error,
-		updateError: state.edit.error
+		articleSelected: state.detailReducer.articleSelected,
+		updating: state.editReducer.updating,
+		error: state.editReducer.error
 	}
 }
 const mapDispatchToProps = dispatch => {
 	return {
-		downloadArticle: id => dispatch(detailActionCreators.downloadArticle(id)),
-		updateArticle: (article) => dispatch(editActionCreators.updateArticle(article))
-		// onEnterTitle: event => dispatch({type: actionType.ON_ENTER_TITLE, title: event.target.value}),
-		// onEnterContent: event => dispatch({type: actionType.ON_ENTER_CONTENT ,content: event.target.value})
+		downloadArticle: id => dispatch(actionCreators.downloadArticle(id)),
+		updateArticle: (article) => dispatch(actionCreators.updateArticle(article))
 	}
 }
 export default connect(mapStateToProps, mapDispatchToProps)(ArticleEdit);

@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-import { Redirect } from 'react-router-dom'
 import ArticleContent from '../../../components/UI/ArticleContent'
-import * as detailActionCreators from '../../../store/actions/detail'
-import * as editActionCreators from '../../../store/actions/edit'
+
+import * as actionCreators from '../../../store/actions'
 
 
 class ArticleDetail extends Component {
@@ -12,21 +11,22 @@ class ArticleDetail extends Component {
 		this.props.deleteArticle();
 	}
 	onEditClicked = () => {
-		this.props.articleUpdateReset()
 		this.props.history.push("/articles/" + this.props.match.params.id + "/edit");
 	}
+	componentDidUpdate() {
+		if (!this.props.articleSelected) {
+
+			this.props.history.push('/articles')
+		}
+	}
 	componentDidMount() {
-		if (!this.props.article) {
+		if (!this.props.articleSelected) {
 			this.props.downloadArticle(this.props.match.params.id);
 		}
 	}
 
 	renderBody() {
-
-		if (this.props.isDeleted) {
-			return <Redirect to="/articles" />
-		} 
-		if (!this.props.article) {
+		if (!this.props.articleSelected) {
 			return <p>Loading...</p>
 		}
 		if (this.props.error) {
@@ -35,12 +35,11 @@ class ArticleDetail extends Component {
 		if (this.props.deleting) {
 			return <p>Deleting</p>
 		}
-
 		return (
-			<ArticleContent article={this.props.article} >
+			<ArticleContent article={this.props.articleSelected} >
 				<span>
 					<button className="ui red button" onClick={this.onDeleteClicked}>Delete</button>
-					<button className="ui primary button"onClick={this.onEditClicked}>Edit</button>
+					<button className="ui primary button" onClick={this.onEditClicked}>Edit</button>
 				</span>
 			</ArticleContent>
 		)
@@ -57,18 +56,15 @@ class ArticleDetail extends Component {
 
 const mapStateToProps = state => {
 	return {
-		article: state.detail.article,
-		deleting: state.detail.deleting,
-		isDeleted: state.detail.isDeleted,
-		error: state.detail.error
+		articleSelected: state.detailReducer.articleSelected,
+		deleting: state.detailReducer.deleting,
+		error: state.detailReducer.error
 	}
 }
 const mapDispatchToProps = dispatch => {
 	return {
-		downloadArticle: id => dispatch(detailActionCreators.downloadArticle(id)),
-		// invalidateArticle: () => dispatch({ type: actionType.DETAIL_UNMOUNT }),
-		deleteArticle: () => dispatch(detailActionCreators.deleteArticle()),
-		articleUpdateReset: () => dispatch(editActionCreators.articleUpdateReset())
+		downloadArticle: id => dispatch(actionCreators.downloadArticle(id)),
+		deleteArticle: () => dispatch(actionCreators.deleteArticle())
 	}
 }
 export default connect(mapStateToProps, mapDispatchToProps)(ArticleDetail);

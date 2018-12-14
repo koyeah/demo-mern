@@ -2,9 +2,8 @@
 import * as actionTypes from '../actions/actionTypes'
 
 const initialState = {
-	article: null,
+	articleSelected: null,
 	deleting: false,
-	isDeleted: false,
 	error: null
 }
 
@@ -30,24 +29,19 @@ const reducer = (state = initialState, action) => {
 const articleDownloadStart = (state, action) => {
 	return {
 		...state,
-		initializing: true,
-		deleting: false,
-		isDeleted: false
+		error: null
 	}
 }
 const articleDownloadOK = (state, action) => {
-	const article = { ...action.article }
+	const articleSelected = { ...action.articleSelected }
 	return {
 		...state,
-		initializing: false,
-		article: article,
-		error: null
+		articleSelected
 	}
 }
 const articleDownloadFail = (state, action) => {
 	return {
 		...state,
-		initializing: false,
 		error: action.error
 	}
 }
@@ -62,26 +56,20 @@ const articleDeleteOK = (state, action) => {
 	return {
 		...state,
 		deleting: false,
-		isDeleted: true,
-		article: null,
-		error: null
+		articleSelected: null
 	}
 }
 const articleDeleteFail = (state, action) => {
 	return {
 		...state,
 		deleting: false,
-		isDeleted: false,
 		error: action.error
 	}
 }
 const resetArticle = (state, action) => {
 	return {
 		...state,
-		article: null,
-		deleting: false,
-		isDeleted: false,
-		error: null
+		articleSelected: null
 	}
 }
 export default reducer;
